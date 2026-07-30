@@ -1,0 +1,32 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local remote = Instance.new("RemoteEvent")
+remote.Name = "MoneyFarmEvent"
+remote.Parent = ReplicatedStorage
+
+local farming = {}
+
+remote.OnServerEvent:Connect(function(player, enabled)
+	farming[player] = enabled == true
+end)
+
+task.spawn(function()
+	while true do
+		task.wait(2)
+
+		for player, enabled in pairs(farming) do
+			if enabled and player.Parent then
+				local leaderstats = player:FindFirstChild("leaderstats")
+				local money = leaderstats and leaderstats:FindFirstChild("Money")
+
+				if money then
+					money.Value += 10
+				end
+			end
+		end
+	end
+end)
+
+game.Players.PlayerRemoving:Connect(function(player)
+	farming[player] = nil
+end)
